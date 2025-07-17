@@ -19,6 +19,9 @@ const Dashboard = () => {
   const [selectedGig, setSelectedGig] = useState(null);
   const [filterStatus, setFilterStatus] = useState("all");
   const navigate = useNavigate();
+  const [searchTerm, setSearchTerm] = useState("");
+
+
 
   useEffect(() => {
     const isAdmin = localStorage.getItem("isAdmin");
@@ -69,24 +72,49 @@ const Dashboard = () => {
     refreshGigs();
   };
 
-  const filteredGigs = gigs.filter(gig => {
-    if (filterStatus === "all") return true;
-    return (gig.status || "pending") === filterStatus;
+ const filteredGigs = gigs.filter((gig) => {
+  const status = gig.status || "pending";
+  const matchesStatus = filterStatus === "all" || status === filterStatus;
 
-  });
+  const sellerName = (gig.sellerName || "").toLowerCase();
+  const gigTitle = (gig.gigTitle || "").toLowerCase();
+
+  const matchesSearch =
+    sellerName.includes(searchTerm) || gigTitle.includes(searchTerm);
+
+  return matchesStatus && matchesSearch;
+});
+
+const handleSaveChanges = async () => {
+  try {
+    const docRef = doc(db, "promotedGigs", selectedGig.id);
+    await updateDoc(docRef, {
+      gigTitle: selectedGig.gigTitle,
+      gigImage: selectedGig.gigImage,
+      tags: selectedGig.tags,
+      category: selectedGig.category,
+      subcategory: selectedGig.subcategory
+    });
+    alert("✅ Changes Saved");
+    refreshGigs();
+  } catch (error) {
+    console.error("Error saving gig changes:", error);
+    alert("⚠️ Failed to save changes");
+  }
+};
 
   return (
     <div className="flex min-h-screen bg-gray-100">
       {/* Sidebar */}
       <div className="w-64 bg-white shadow-md p-4">
-        <h3 className="text-xl font-bold mb-4 text-gray-700">📂 Filter Gigs</h3>
+  
         {["all", "approved", "pending", "rejected"].map((status) => (
           <button
             key={status}
             onClick={() => setFilterStatus(status)}
             className={`block w-full text-left px-4 py-2 rounded mb-2 transition ${
               filterStatus === status
-                ? "bg-indigo-600 text-white"
+                ? "bg-green-700 text-white"
                 : "bg-gray-100 text-gray-800 hover:bg-gray-200"
             }`}
           >
@@ -104,9 +132,18 @@ const Dashboard = () => {
       {/* Main content */}
       <div className="flex-1 p-6">
         <h2 className="text-3xl font-extrabold text-gray-800 mb-8 border-b pb-2">
-          🛠️ Admin Panel - <span className="text-indigo-600 capitalize">{filterStatus} Gigs</span>
+          🛠️ Admin Panel - <span className="text-green-700 capitalize">{filterStatus} Gigs</span>
         </h2>
-
+           <div className="mb-6">
+  <input
+    type="text"
+    placeholder="🔍 Search by seller name or title..."
+    className="w-full px-4 py-2 border rounded shadow-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+    value={searchTerm}
+    onChange={(e) => setSearchTerm(e.target.value.toLowerCase())}
+  />
+</div>
+ 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
           {filteredGigs.map((gig) => (
             <div
@@ -114,8 +151,20 @@ const Dashboard = () => {
               className="bg-white p-5 rounded-lg shadow hover:shadow-md transition cursor-pointer border border-gray-200"
               onClick={() => setSelectedGig(gig)}
             >
-              <p className="text-sm text-gray-500 mb-1">👤 {gig.sellerEmail}</p>
-              <p className="text-lg font-semibold text-gray-800 truncate">{gig.gigTitle || "No Title Yet"}</p>
+              
+             <p className="text-sm text-gray-500 mb-1">👤 {gig.sellerName || gig.sellerEmail}</p>
+             <p className="text-sm text-gray-500 mb-1"> {gig.sellerEmail}</p>
+
+{gig.status === "approved" ? (
+  <p className="text-lg font-semibold text-gray-800 truncate">{gig.gigTitle}</p>
+) : (
+  <p className={`text-base font-semibold ${
+    gig.status === "rejected" ? "text-red-600" : "text-yellow-600"
+  }`}>
+    {gig.status === "rejected" ? "❌ Rejected by Admin" : "⏳ Awaiting Approval"}
+  </p>
+)}
+
               <p className="text-sm mt-1 text-gray-600">⏳ {gig.duration} days | 💸 {gig.discount}%</p>
               <p className={`text-sm mt-2 font-medium ${gig.status === "approved" ? "text-green-600" : gig.status === "rejected" ? "text-red-600" : "text-yellow-500"}`}>
                 {gig.status || "pending"}
@@ -246,6 +295,12 @@ const Dashboard = () => {
                 >
                   🗑️ Delete
                 </button>
+                <button
+  onClick={handleSaveChanges}
+  className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+>
+  💾 Save Changes
+</button>
               </div>
             </div>
           </div>
