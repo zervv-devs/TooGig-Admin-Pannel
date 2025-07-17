@@ -1,0 +1,258 @@
+import React, { useEffect, useState } from "react";
+import { collection, getDocs, doc, updateDoc, deleteDoc } from "firebase/firestore";
+import { db } from "../firebase";
+import { useNavigate } from "react-router-dom";
+
+const subcategoryOptions = {
+  "Programming & Tech": ["Web Development", "App Development", "Automation"],
+  "Marketing & Sales": ["Email Marketing", "Social Media", "SEO"],
+  "Photography & Editing": ["Photo Editing", "Retouching", "Color Grading"],
+  "Graphics & Design": ["Logo Design", "Branding", "Illustration"],
+  "Virtual Assistant": ["Admin Tasks", "Data Entry", "Scheduling"],
+  "Content Writing": ["Blogs", "Product Descriptions", "Proofreading"],
+  "UI/UX Design": ["Wireframes", "Prototypes", "User Research"],
+  "Customer Support": ["Live Chat", "Email Support", "CRM Management"]
+};
+
+const Dashboard = () => {
+  const [gigs, setGigs] = useState([]);
+  const [selectedGig, setSelectedGig] = useState(null);
+  const [filterStatus, setFilterStatus] = useState("all");
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const isAdmin = localStorage.getItem("isAdmin");
+    if (!isAdmin) navigate("/login");
+    refreshGigs();
+  }, [navigate]);
+
+  const refreshGigs = async () => {
+    const querySnapshot = await getDocs(collection(db, "promotedGigs"));
+    const data = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    setGigs(data);
+  };
+
+  const handleReject = async () => {
+    const reason = prompt("Enter rejection reason (optional):");
+    const docRef = doc(db, "promotedGigs", selectedGig.id);
+    await updateDoc(docRef, {
+      status: "rejected",
+      rejectionReason: reason || "",
+    });
+    alert("❌ Gig Rejected");
+    setSelectedGig(null);
+    refreshGigs();
+  };
+
+  const handleDelete = async () => {
+    const confirmDelete = window.confirm("Are you sure you want to delete this gig?");
+    if (!confirmDelete) return;
+    const docRef = doc(db, "promotedGigs", selectedGig.id);
+    await deleteDoc(docRef);
+    alert("🗑️ Gig Deleted");
+    setSelectedGig(null);
+    refreshGigs();
+  };
+
+  const handleApprove = async () => {
+    const docRef = doc(db, "promotedGigs", selectedGig.id);
+    await updateDoc(docRef, {
+      status: "approved",
+      gigTitle: selectedGig.gigTitle,
+      gigImage: selectedGig.gigImage,
+      tags: selectedGig.tags,
+      category: selectedGig.category,
+      subcategory: selectedGig.subcategory
+    });
+    alert("✅ Gig Approved!");
+    setSelectedGig(null);
+    refreshGigs();
+  };
+
+  const filteredGigs = gigs.filter(gig => {
+    if (filterStatus === "all") return true;
+    return (gig.status || "pending") === filterStatus;
+
+  });
+
+  return (
+    <div className="flex min-h-screen bg-gray-100">
+      {/* Sidebar */}
+      <div className="w-64 bg-white shadow-md p-4">
+        <h3 className="text-xl font-bold mb-4 text-gray-700">📂 Filter Gigs</h3>
+        {["all", "approved", "pending", "rejected"].map((status) => (
+          <button
+            key={status}
+            onClick={() => setFilterStatus(status)}
+            className={`block w-full text-left px-4 py-2 rounded mb-2 transition ${
+              filterStatus === status
+                ? "bg-indigo-600 text-white"
+                : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+            }`}
+          >
+            {status === "all"
+              ? "📋 All Gigs"
+              : status === "approved"
+              ? "✅ Approved"
+              : status === "pending"
+              ? "⏳ Pending"
+              : "❌ Rejected"}
+          </button>
+        ))}
+      </div>
+
+      {/* Main content */}
+      <div className="flex-1 p-6">
+        <h2 className="text-3xl font-extrabold text-gray-800 mb-8 border-b pb-2">
+          🛠️ Admin Panel - <span className="text-indigo-600 capitalize">{filterStatus} Gigs</span>
+        </h2>
+
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+          {filteredGigs.map((gig) => (
+            <div
+              key={gig.id}
+              className="bg-white p-5 rounded-lg shadow hover:shadow-md transition cursor-pointer border border-gray-200"
+              onClick={() => setSelectedGig(gig)}
+            >
+              <p className="text-sm text-gray-500 mb-1">👤 {gig.sellerEmail}</p>
+              <p className="text-lg font-semibold text-gray-800 truncate">{gig.gigTitle || "No Title Yet"}</p>
+              <p className="text-sm mt-1 text-gray-600">⏳ {gig.duration} days | 💸 {gig.discount}%</p>
+              <p className={`text-sm mt-2 font-medium ${gig.status === "approved" ? "text-green-600" : gig.status === "rejected" ? "text-red-600" : "text-yellow-500"}`}>
+                {gig.status || "pending"}
+              </p>
+            </div>
+          ))}
+        </div>
+
+        {/* Modal */}
+        {selectedGig && (
+          <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50 p-4">
+            <div className="bg-white p-6 rounded-lg shadow-lg w-full max-w-xl relative max-h-[90vh] overflow-y-auto">
+              <button
+                className="absolute top-3 right-4 text-xl font-bold text-gray-600 hover:text-red-500"
+                onClick={() => setSelectedGig(null)}
+              >
+                ×
+              </button>
+              <h3 className="text-2xl font-bold mb-4 text-gray-800">📝 Review & Complete Gig Info</h3>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-600 mb-1">Gig Link</label>
+                <a
+                  href={selectedGig.gigLink}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="block w-full bg-gray-100 text-blue-600 underline px-4 py-2 rounded break-all"
+                >
+                  {selectedGig.gigLink}
+                </a>
+              </div>
+              <div className="grid grid-cols-2 gap-4 mb-4">
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">Discount (%)</label>
+                  <input
+                    type="text"
+                    value={selectedGig.discount || ""}
+                    readOnly
+                    className="w-full bg-gray-100 border px-4 py-2 rounded"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-600 mb-1">Duration (days)</label>
+                  <input
+                    type="text"
+                    value={selectedGig.duration || ""}
+                    readOnly
+                    className="w-full bg-gray-100 border px-4 py-2 rounded"
+                  />
+                </div>
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Gig Title</label>
+                <input
+                  type="text"
+                  className="w-full border px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  value={selectedGig.gigTitle || ""}
+                  onChange={(e) => setSelectedGig({ ...selectedGig, gigTitle: e.target.value })}
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Gig Image URL</label>
+                <input
+                  type="text"
+                  className="w-full border px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  value={selectedGig.gigImage || ""}
+                  onChange={(e) => setSelectedGig({ ...selectedGig, gigImage: e.target.value })}
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Tags (comma separated)</label>
+                <input
+                  type="text"
+                  className="w-full border px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  value={selectedGig.tags || ""}
+                  onChange={(e) => setSelectedGig({ ...selectedGig, tags: e.target.value })}
+                />
+              </div>
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Category</label>
+                <select
+                  className="w-full border px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  value={selectedGig.category || ""}
+                  onChange={(e) => {
+                    const newCat = e.target.value;
+                    setSelectedGig({
+                      ...selectedGig,
+                      category: newCat,
+                      subcategory: ""
+                    });
+                  }}
+                >
+                  <option value="">Select a category</option>
+                  {Object.keys(subcategoryOptions).map((cat) => (
+                    <option key={cat} value={cat}>{cat}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="mb-6">
+                <label className="block text-sm font-medium text-gray-700 mb-1">Subcategory</label>
+                <select
+                  className="w-full border px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  value={selectedGig.subcategory || ""}
+                  onChange={(e) => setSelectedGig({ ...selectedGig, subcategory: e.target.value })}
+                  disabled={!selectedGig.category}
+                >
+                  <option value="">Select a subcategory</option>
+                  {(subcategoryOptions[selectedGig.category] || []).map((sub) => (
+                    <option key={sub} value={sub}>{sub}</option>
+                  ))}
+                </select>
+              </div>
+              <div className="flex justify-between items-center">
+                <button
+                  onClick={handleApprove}
+                  className="bg-green-600 text-white px-4 py-2 rounded hover:bg-green-700"
+                >
+                  ✅ Approve
+                </button>
+                <button
+                  onClick={handleReject}
+                  className="bg-yellow-600 text-white px-4 py-2 rounded hover:bg-yellow-700"
+                >
+                  ❌ Reject
+                </button>
+                <button
+                  onClick={handleDelete}
+                  className="bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+                >
+                  🗑️ Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default Dashboard;
