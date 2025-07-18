@@ -8,7 +8,6 @@ const Login = () => {
 
   const handleLogin = (e) => {
     e.preventDefault();
-
     // Replace with your own admin credentials
     const adminUser = "admin";
     const adminPass = "admin123";
