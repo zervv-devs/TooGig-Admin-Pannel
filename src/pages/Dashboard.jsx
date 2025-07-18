@@ -2,6 +2,14 @@ import React, { useEffect, useState } from "react";
 import { collection, getDocs, doc, updateDoc, deleteDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { useNavigate } from "react-router-dom";
+import emailjs from "emailjs-com";
+
+
+
+const SERVICE_ID = "service_bi2xmdb";
+const TEMPLATE_ID = "template_qs1a34q";
+const PUBLIC_KEY = "j8VnXuRx-HiUjs4h1";
+
 
 const subcategoryOptions = {
   "Programming & Tech": ["Web Development", "App Development", "Automation"],
@@ -35,17 +43,40 @@ const Dashboard = () => {
     setGigs(data);
   };
 
-  const handleReject = async () => {
-    const reason = prompt("Enter rejection reason (optional):");
-    const docRef = doc(db, "promotedGigs", selectedGig.id);
-    await updateDoc(docRef, {
-      status: "rejected",
-      rejectionReason: reason || "",
-    });
-    alert("❌ Gig Rejected");
-    setSelectedGig(null);
-    refreshGigs();
-  };
+const handleReject = async () => {
+  const reason = prompt("Enter rejection reason (optional):");
+  const docRef = doc(db, "promotedGigs", selectedGig.id);
+
+  await updateDoc(docRef, {
+    status: "rejected",
+    rejectionReason: reason || "",
+  });
+
+  // Send email to the seller
+  if (selectedGig?.sellerEmail) {
+    const templateParams = {
+      to_email: selectedGig.sellerEmail,
+      gig_title: selectedGig.gigTitle || "Fiverr Gig",
+      reason: reason || "Not specified",
+    };
+
+    emailjs
+      .send(SERVICE_ID, TEMPLATE_ID, templateParams, PUBLIC_KEY)
+      .then(() => {
+        alert("❌ Gig Rejected & Email Sent");
+      })
+      .catch((error) => {
+        console.error("Email sending failed:", error);
+        alert("Gig rejected but email failed to send.");
+      });
+  } else {
+    alert("❌ Gig Rejected. Seller email missing.");
+  }
+
+  setSelectedGig(null);
+  refreshGigs();
+};
+
 
   const handleDelete = async () => {
     const confirmDelete = window.confirm("Are you sure you want to delete this gig?");
@@ -57,20 +88,22 @@ const Dashboard = () => {
     refreshGigs();
   };
 
-  const handleApprove = async () => {
-    const docRef = doc(db, "promotedGigs", selectedGig.id);
-    await updateDoc(docRef, {
-      status: "approved",
-      gigTitle: selectedGig.gigTitle,
-      gigImage: selectedGig.gigImage,
-      tags: selectedGig.tags,
-      category: selectedGig.category,
-      subcategory: selectedGig.subcategory
-    });
-    alert("✅ Gig Approved!");
-    setSelectedGig(null);
-    refreshGigs();
-  };
+ const handleApprove = async () => {
+  const docRef = doc(db, "promotedGigs", selectedGig.id);
+  await updateDoc(docRef, {
+    status: "approved",
+    gigTitle: selectedGig.gigTitle,
+    gigImage: selectedGig.gigImage,
+    tags: selectedGig.tags,
+    category: selectedGig.category,
+    subcategory: selectedGig.subcategory,
+    affiliateLink: selectedGig.affiliateLink || "", // ✅ Save affiliate link
+  });
+  alert("✅ Gig Approved!");
+  setSelectedGig(null);
+  refreshGigs();
+};
+
 
  const filteredGigs = gigs.filter((gig) => {
   const status = gig.status || "pending";
@@ -93,7 +126,8 @@ const handleSaveChanges = async () => {
       gigImage: selectedGig.gigImage,
       tags: selectedGig.tags,
       category: selectedGig.category,
-      subcategory: selectedGig.subcategory
+      subcategory: selectedGig.subcategory,
+      affiliateLink: selectedGig.affiliateLink || "",
     });
     alert("✅ Changes Saved");
     refreshGigs();
@@ -105,7 +139,7 @@ const handleSaveChanges = async () => {
 
   return (
     <div className="flex min-h-screen bg-gray-100">
-      {/* Sidebar */}
+      
       <div className="w-64 bg-white shadow-md p-4">
   
         {["all", "approved", "pending", "rejected"].map((status) => (
@@ -184,17 +218,32 @@ const handleSaveChanges = async () => {
                 ×
               </button>
               <h3 className="text-2xl font-bold mb-4 text-gray-800">📝 Review & Complete Gig Info</h3>
-              <div className="mb-4">
-                <label className="block text-sm font-medium text-gray-600 mb-1">Gig Link</label>
-                <a
-                  href={selectedGig.gigLink}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="block w-full bg-gray-100 text-blue-600 underline px-4 py-2 rounded break-all"
-                >
-                  {selectedGig.gigLink}
-                </a>
-              </div>
+      <div className="mb-4">
+  <label className="block text-sm font-medium text-gray-600 mb-1">Original Gig Link</label>
+  <a
+    href={selectedGig.gigLink}
+    target="_blank"
+    rel="noopener noreferrer"
+    className="block w-full bg-gray-100 text-blue-600 underline px-4 py-2 rounded break-all"
+  >
+    {selectedGig.gigLink}
+  </a>
+</div>
+
+<div className="mb-4">
+  <label className="block text-sm font-medium text-gray-700 mb-1">Affiliate Link (optional)</label>
+  <input
+    type="text"
+    className="w-full border px-4 py-2 rounded focus:outline-none focus:ring-2 focus:ring-indigo-500"
+    value={selectedGig.affiliateLink || ""}
+    onChange={(e) =>
+      setSelectedGig({ ...selectedGig, affiliateLink: e.target.value })
+    }
+    placeholder="Enter affiliate or redirected gig link"
+  />
+</div>
+
+
               <div className="grid grid-cols-2 gap-4 mb-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-600 mb-1">Discount (%)</label>
