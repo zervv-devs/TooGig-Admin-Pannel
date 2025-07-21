@@ -98,6 +98,7 @@ const handleReject = async () => {
     category: selectedGig.category,
     subcategory: selectedGig.subcategory,
     affiliateLink: selectedGig.affiliateLink || "", // ✅ Save affiliate link
+    visible: true,
   });
   alert("✅ Gig Approved!");
   setSelectedGig(null);
@@ -139,7 +140,7 @@ const handleSaveChanges = async () => {
 
   return (
     <div className="flex min-h-screen bg-gray-100">
-      
+        
       <div className="w-64 bg-white shadow-md p-4">
   
         {["all", "approved", "pending", "rejected"].map((status) => (
@@ -162,6 +163,7 @@ const handleSaveChanges = async () => {
           </button>
         ))}
       </div>
+     
 
       {/* Main content */}
       <div className="flex-1 p-6">
@@ -355,6 +357,7 @@ const handleSaveChanges = async () => {
           </div>
         )}
       </div>
+    
     </div>
   );
 };
