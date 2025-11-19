@@ -5,13 +5,13 @@ import { getFirestore } from "firebase/firestore";
 import { getStorage } from "firebase/storage"; // ✅ added
 
 const firebaseConfig = {
-  apiKey: "AIzaSyBfqkLLys811x-OFnZOSjtZYfI69FpvBBw",
-  authDomain: "fiverr-managment.firebaseapp.com",
-  projectId: "fiverr-managment",
-  storageBucket: "fiverr-managment.appspot.com",
-  messagingSenderId: "863919386714",
-  appId: "1:863919386714:web:ae7ebc45e89e7a34f1a863",
-  measurementId: "G-2TSM52QLWX"
+  apiKey: "AIzaSyBthl-JsJubXDAsFqweqJ70TujLZ6kqhB4",
+  authDomain: "toogig-12.firebaseapp.com",
+  projectId: "toogig-12",
+  storageBucket: "toogig-12.firebasestorage.app",
+  messagingSenderId: "15270869448",
+  appId: "1:15270869448:web:070ddccd29e0c5c54128fd",
+  measurementId: "G-H3QHB8PRNG"
 };
 
 const app = initializeApp(firebaseConfig);
