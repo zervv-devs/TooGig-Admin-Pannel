@@ -3,6 +3,7 @@ import { collection, getDocs, doc, updateDoc, deleteDoc } from "firebase/firesto
 import { db } from "../firebase";
 import { useNavigate } from "react-router-dom";
 import emailjs from "emailjs-com";
+import tooGig1 from "../Images/TooGig1.png"
 
 
 
@@ -137,33 +138,68 @@ const handleSaveChanges = async () => {
     alert("⚠️ Failed to save changes");
   }
 };
+const handleLogout = () => {
+  localStorage.removeItem("isAdmin");
+  navigate("/"); // or "/login"
+};
+
 
   return (
     <div className="flex min-h-screen bg-gray-100">
         
-      <div className="w-64 bg-white shadow-md p-4">
-  
-        {["all", "approved", "pending", "rejected"].map((status) => (
-          <button
-            key={status}
-            onClick={() => setFilterStatus(status)}
-            className={`block w-full text-left px-4 py-2 rounded mb-2 transition ${
-              filterStatus === status
-                ? "bg-green-700 text-white"
-                : "bg-gray-100 text-gray-800 hover:bg-gray-200"
-            }`}
-          >
-            {status === "all"
-              ? "📋 All Gigs"
-              : status === "approved"
-              ? "✅ Approved"
-              : status === "pending"
-              ? "⏳ Pending"
-              : "❌ Rejected"}
-          </button>
-        ))}
-      </div>
-     
+          
+ <div className="w-64 bg-white shadow-md flex flex-col h-screen border-none rounded-none">
+
+  {/* Logo Section - Full width, top, green background */}
+  <div
+    className="bg-[#1DBF73] w-full p-4 flex justify-center items-center cursor-pointer"
+    onClick={() => navigate("/dashboard")}
+  >
+    <img
+      src={tooGig1}
+      alt="TooGig Logo"
+      className="h-10 object-contain"
+    />
+  </div>
+
+  <div className="p-4"></div>
+
+  {/* Menu Buttons */}
+  <div className="flex-1 px-4">
+    {["all", "approved", "pending", "rejected"].map((status) => (
+      <button
+        key={status}
+        onClick={() => setFilterStatus(status)}
+        className={`block w-full text-left px-4 py-2 rounded mb-2 transition ${
+          filterStatus === status
+            ? "bg-green-700 text-white"
+            : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+        }`}
+      >
+        {status === "all"
+          ? "📋 All Gigs"
+          : status === "approved"
+          ? "✅ Approved"
+          : status === "pending"
+          ? "⏳ Pending"
+          : "❌ Rejected"}
+      </button>
+    ))}
+  </div>
+
+  {/* Logout Button (Green) */}
+  <button
+    onClick={() => {
+      localStorage.removeItem("isAdmin");
+      navigate("/");
+    }}
+    className="bg-[#1DBF73] text-white px-4 py-3 font-semibold hover:bg-green-600 transition w-full"
+  >
+    🔒 Logout
+  </button>
+</div>
+
+
 
       {/* Main content */}
       <div className="flex-1 p-6">
