@@ -148,7 +148,8 @@ const handleLogout = () => {
     <div className="flex min-h-screen bg-gray-100">
         
           
- <div className="w-64 bg-white shadow-md flex flex-col h-screen border-none rounded-none">
+ <div className="w-64 bg-white shadow-md flex flex-col fixed left-0 top-0 h-screen border-none rounded-none">
+
 
   {/* Logo Section - Full width, top, green background */}
   <div
@@ -165,7 +166,7 @@ const handleLogout = () => {
   <div className="p-4"></div>
 
   {/* Menu Buttons */}
-  <div className="flex-1 px-4">
+  <div className="flex-1 px-4 ">
     {["all", "approved", "pending", "rejected"].map((status) => (
       <button
         key={status}
@@ -202,7 +203,7 @@ const handleLogout = () => {
 
 
       {/* Main content */}
-      <div className="flex-1 p-6">
+      <div className="flex-1 p-6 ml-64">
         <h2 className="text-3xl font-extrabold text-gray-800 mb-8 border-b pb-2">
           🛠️ Admin Panel - <span className="text-green-700 capitalize">{filterStatus} Gigs</span>
         </h2>
