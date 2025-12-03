@@ -173,7 +173,7 @@ const handleLogout = () => {
         onClick={() => setFilterStatus(status)}
         className={`block w-full text-left px-4 py-2 rounded mb-2 transition ${
           filterStatus === status
-            ? "bg-green-700 text-white"
+            ? "bg-[#1DBF73] text-white"
             : "bg-gray-100 text-gray-800 hover:bg-gray-200"
         }`}
       >
@@ -194,7 +194,7 @@ const handleLogout = () => {
       localStorage.removeItem("isAdmin");
       navigate("/");
     }}
-    className="bg-[#1DBF73] text-white px-4 py-3 font-semibold hover:bg-green-600 transition w-full"
+    className="bg-[#1DBF73] text-white px-4 py-3 font-semibold hover:bg-[#1DBF73] transition w-full"
   >
     🔒 Logout
   </button>
@@ -205,7 +205,7 @@ const handleLogout = () => {
       {/* Main content */}
       <div className="flex-1 p-6 ml-64">
         <h2 className="text-3xl font-extrabold text-gray-800 mb-8 border-b pb-2">
-          🛠️ Admin Panel - <span className="text-green-700 capitalize">{filterStatus} Gigs</span>
+          🛠️ Admin Panel - <span className="text-[#1DBF73] capitalize">{filterStatus} Gigs</span>
         </h2>
            <div className="mb-6">
   <input
