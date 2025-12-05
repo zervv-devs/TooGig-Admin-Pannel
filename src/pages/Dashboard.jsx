@@ -13,7 +13,7 @@ const PUBLIC_KEY = "j8VnXuRx-HiUjs4h1";
 
 
 const subcategoryOptions = {
-  "Programming & Tech": ["Web Development", "App Development", "Automation"],
+  "Programming & Tech": ["Web Development", "App Development", "Software Development"],
   "Marketing & Sales": ["Email Marketing", "Social Media", "SEO"],
   "Photography & Editing": ["Photo Editing", "Retouching", "Color Grading"],
   "Graphics & Design": ["Logo Design", "Branding", "Illustration"],
