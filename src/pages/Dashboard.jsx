@@ -142,6 +142,23 @@ const handleLogout = () => {
   localStorage.removeItem("isAdmin");
   navigate("/"); // or "/login"
 };
+// Pagination
+const [currentPage, setCurrentPage] = useState(1);
+const itemsPerPage = 9; // 3-per-row × 3 rows
+
+const indexOfLast = currentPage * itemsPerPage;
+const indexOfFirst = indexOfLast - itemsPerPage;
+const currentGigs = filteredGigs.slice(indexOfFirst, indexOfLast);
+
+const totalPages = Math.ceil(filteredGigs.length / itemsPerPage);
+
+const nextPage = () => {
+  if (currentPage < totalPages) setCurrentPage((p) => p + 1);
+};
+
+const prevPage = () => {
+  if (currentPage > 1) setCurrentPage((p) => p - 1);
+};
 
 
   return (
@@ -218,8 +235,8 @@ const handleLogout = () => {
 </div>
  
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredGigs.map((gig) => (
-            <div
+          {currentGigs.map((gig) => (
+ <div
               key={gig.id}
               className="bg-white p-5 rounded-lg shadow hover:shadow-md transition cursor-pointer border border-gray-200"
               onClick={() => setSelectedGig(gig)}
@@ -393,6 +410,28 @@ const handleLogout = () => {
             </div>
           </div>
         )}
+        <div className="flex justify-end items-center gap-4 mt-6 mb-20">
+  <button
+    onClick={prevPage}
+    disabled={currentPage === 1}
+    className="px-4 py-2 bg-gray-300 rounded disabled:opacity-50"
+  >
+    Previous
+  </button>
+
+  <span className="font-semibold text-gray-800">
+    Page {currentPage} of {totalPages}
+  </span>
+
+  <button
+    onClick={nextPage}
+    disabled={currentPage === totalPages}
+    className="px-4 py-2 bg-green-800 text-white rounded disabled:opacity-50"
+  >
+    Next
+  </button>
+</div>
+
       </div>
     
     </div>
