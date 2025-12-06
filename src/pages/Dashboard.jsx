@@ -160,6 +160,7 @@ const prevPage = () => {
   if (currentPage > 1) setCurrentPage((p) => p - 1);
 };
 
+const pendingCount = gigs.filter(g => (g.status || "pending") === "pending").length;
 
   return (
     <div className="flex min-h-screen bg-gray-100">
@@ -183,27 +184,65 @@ const prevPage = () => {
   <div className="p-4"></div>
 
   {/* Menu Buttons */}
-  <div className="flex-1 px-4 ">
-    {["all", "approved", "pending", "rejected"].map((status) => (
-      <button
-        key={status}
-        onClick={() => setFilterStatus(status)}
-        className={`block w-full text-left px-4 py-2 rounded mb-2 transition ${
-          filterStatus === status
-            ? "bg-[#1DBF73] text-white"
-            : "bg-gray-100 text-gray-800 hover:bg-gray-200"
-        }`}
-      >
-        {status === "all"
-          ? "📋 All Gigs"
-          : status === "approved"
-          ? "✅ Approved"
-          : status === "pending"
-          ? "⏳ Pending"
-          : "❌ Rejected"}
-      </button>
-    ))}
-  </div>
+  
+ <div className="flex-1 px-4 ">
+
+  {/* ALL */}
+  <button
+    onClick={() => setFilterStatus("all")}
+    className={`block w-full text-left px-4 py-2 rounded mb-2 transition ${
+      filterStatus === "all"
+        ? "bg-[#1DBF73] text-white"
+        : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+    }`}
+  >
+    📋 All Gigs
+  </button>
+
+  {/* APPROVED */}
+  <button
+    onClick={() => setFilterStatus("approved")}
+    className={`block w-full text-left px-4 py-2 rounded mb-2 transition ${
+      filterStatus === "approved"
+        ? "bg-[#1DBF73] text-white"
+        : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+    }`}
+  >
+    ✅ Approved
+  </button>
+
+  {/* PENDING — WITH NOTIFICATION BADGE */}
+  <button
+    onClick={() => setFilterStatus("pending")}
+    className={`relative block w-full text-left px-4 py-2 rounded mb-2 transition ${
+      filterStatus === "pending"
+        ? "bg-[#1DBF73] text-white"
+        : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+    }`}
+  >
+    ⏳ Pending
+
+    {/* Notification Bubble */}
+    {pendingCount > 0 && (
+      <span className="absolute right-3 top-2 bg-red-600 text-white text-xs font-bold px-2 py-0.5 rounded-full">
+        {pendingCount}
+      </span>
+    )}
+  </button>
+
+  {/* REJECTED */}
+  <button
+    onClick={() => setFilterStatus("rejected")}
+    className={`block w-full text-left px-4 py-2 rounded mb-2 transition ${
+      filterStatus === "rejected"
+        ? "bg-[#1DBF73] text-white"
+        : "bg-gray-100 text-gray-800 hover:bg-gray-200"
+    }`}
+  >
+    ❌ Rejected
+  </button>
+
+</div>
 
   {/* Logout Button (Green) */}
   <button
