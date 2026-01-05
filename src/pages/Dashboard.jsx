@@ -17,9 +17,9 @@ const subcategoryOptions = {
   "Marketing & Sales": ["Email Marketing", "Social Media", "SEO"],
   "Photography & Editing": ["Photo Editing", "Retouching", "Color Grading"],
   "Graphics & Design": ["Logo Design", "Branding", "Illustration"],
-  "Virtual Assistant": ["Admin Tasks", "Data Entry", "Scheduling", "Lead generation"],
-  "Content Writing": ["Blogs", "Product Descriptions", "Proofreading"],
-  "UI/UX Design": ["Wireframes", "Prototypes", "User Research","Cpoy Paste Content" ],
+  "Virtual Assistant": ["Admin Tasks", "Data Entry", "Scheduling", "Lead generation", "GHL"],
+  "Content Writing": ["Blogs", "Product Descriptions", "Proofreading","Cpoy Paste Content","Data Scraping"  ],
+  "UI/UX Design": ["Wireframes", "Prototypes", "User Research"],
   "Customer Support": ["Live Chat", "Email Support", "CRM Management"]
 };
 
