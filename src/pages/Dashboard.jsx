@@ -138,6 +138,7 @@ const handleSaveChanges = async () => {
     alert("⚠️ Failed to save changes");
   }
 };
+// eslint-disable-next-line no-unused-vars
 const handleLogout = () => {
   localStorage.removeItem("isAdmin");
   navigate("/"); // or "/login"
