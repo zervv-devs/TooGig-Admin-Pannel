@@ -199,7 +199,7 @@ const pendingCount = gigs.filter(g => (g.status || "pending") === "pending").len
     📋 All Gigs
   </button>
 
-  {/* APPROVED */}
+ 
   <button
     onClick={() => setFilterStatus("approved")}
     className={`block w-full text-left px-4 py-2 rounded mb-2 transition ${
